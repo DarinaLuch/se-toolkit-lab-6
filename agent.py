@@ -26,7 +26,7 @@ def load_env() -> dict[str, str]:
     for env_file in [".env.agent.secret", ".env.docker.secret"]:
         env_path = PROJECT_ROOT / env_file
         if env_path.exists():
-            load_dotenv(env_path)
+            load_dotenv(env_path, override=False)
 
     required = ["LLM_API_KEY", "LLM_API_BASE", "LLM_MODEL"]
     env = {}
