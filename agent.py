@@ -221,11 +221,13 @@ def run_agent(question: str, env: dict) -> dict:
                 data = resp.json()
             except httpx.TimeoutException:
                 print("Error: LLM timed out", file=sys.stderr)
-                sys.exit(1)
+                return {"answer": "Error: LLM timed out", "source": "", "tool_calls": []}
             except httpx.HTTPStatusError as e:
                 print(f"Error: HTTP {e.response.status_code}: {e.response.text}", file=sys.stderr)
-                sys.exit(1)
-
+                return {"answer": f"Error calling LLM: HTTP {e.response.status_code}", "source": "", "tool_calls": []}
+            except httpx.HTTPStatusError as e:
+                print(f"Error: HTTP {e.response.status_code}: {e.response.text}", file=sys.stderr)
+                return {"answer": f"Error calling LLM: HTTP {e.response.status_code}", "source": "", "tool_calls": []}
             choice = data["choices"][0]
             msg = choice["message"]
             messages.append(msg)
