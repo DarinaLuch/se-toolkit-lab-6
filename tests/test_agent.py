@@ -47,3 +47,23 @@ def test_agent_outputs_valid_json() -> None:
     assert isinstance(output["answer"], str), "'answer' must be a string"
     assert len(output["answer"]) > 0, "'answer' must be non-empty"
     assert isinstance(output["tool_calls"], list), "'tool_calls' must be a list"
+def test_agent_uses_read_file():
+    result = subprocess.run(
+        ["uv", "run", "agent.py", "How do you resolve a merge conflict?"],
+        capture_output=True, text=True, timeout=60
+    )
+    assert result.returncode == 0
+    output = json.loads(result.stdout.strip())
+    tools_used = [t["tool"] for t in output["tool_calls"]]
+    assert "read_file" in tools_used
+    assert "wiki" in output.get("source", "")
+
+def test_agent_uses_list_files():
+    result = subprocess.run(
+        ["uv", "run", "agent.py", "What files are in the wiki?"],
+        capture_output=True, text=True, timeout=60
+    )
+    assert result.returncode == 0
+    output = json.loads(result.stdout.strip())
+    tools_used = [t["tool"] for t in output["tool_calls"]]
+    assert "list_files" in tools_used
